@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'services/llama_api_service.dart';
 import 'providers/chat_provider.dart';
@@ -28,19 +28,25 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
-          return MaterialApp(
+          return CupertinoApp(
             title: 'Medical & Fitness Assistant',
-            themeMode: themeProvider.themeMode,
-            theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-              useMaterial3: true,
-            ),
-            darkTheme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.blue,
-                brightness: Brightness.dark,
+            theme: CupertinoThemeData(
+              brightness: themeProvider.brightness,
+              primaryColor: themeProvider.primaryColor,
+              barBackgroundColor: themeProvider.isDarkMode
+                  ? CupertinoColors.black
+                  : CupertinoColors.white,
+              scaffoldBackgroundColor: themeProvider.isDarkMode
+                  ? CupertinoColors.black
+                  : CupertinoColors.white,
+              textTheme: CupertinoTextThemeData(
+                primaryColor: themeProvider.primaryColor,
+                textStyle: TextStyle(
+                  color: themeProvider.isDarkMode
+                      ? CupertinoColors.white
+                      : CupertinoColors.black,
+                ),
               ),
-              useMaterial3: true,
             ),
             home: const ChatScreen(),
           );

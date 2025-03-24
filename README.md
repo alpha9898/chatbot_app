@@ -1,61 +1,66 @@
 # Medical & Fitness Assistant
 
-A Flutter application that provides a specialized chatbot for medical and fitness questions using the Llama AI model. Features both light and dark mode for comfortable use in any environment.
+A specialized Flutter application that provides medical and fitness guidance using the Llama AI model. The app features a modern iOS-style interface with customizable themes and a dark mode.
 
 ## Features
 
-- **Medical Q&A**: Get information about health conditions, medications, and treatments
-- **Fitness Guidance**: Receive exercise recommendations, workout routines, and form advice
-- **Nutrition Advice**: Learn about dietary recommendations and nutritional information
-- **User-friendly Interface**: Clean chat interface with message bubbles and loading indicators
-- **Category Selection**: Switch between medical and fitness focus as needed
-- **Dark Mode Support**: Toggle between light and dark themes for comfortable use day or night
+- **Medical Q&A**: Get answers to medical questions and health-related inquiries
+- **Fitness Guidance**: Receive workout routines and exercise recommendations
+- **Nutrition Advice**: Get dietary suggestions and nutritional information
+- **iOS-Style Interface**: Clean, modern UI following iOS design guidelines
+- **Theme Customization**:
+  - Dark mode enabled by default
+  - 8 different accent colors to choose from
+  - Persistent theme preferences
+- **Category Selection**: Switch between medical and fitness topics
+- **Chat History**: View and clear conversation history
 
 ## Setup
 
-1. Clone this repository
-   ```
-   git clone https://github.com/yourusername/medical-fitness-assistant.git
-   ```
-
-2. Install dependencies
-   ```
+1. Clone the repository
+2. Install dependencies:
+   ```bash
    flutter pub get
    ```
+3. Configure the API:
+   - Rename `lib/config/api_config_template.dart` to `api_config.dart`
+   - Add your Llama API key from Together AI
 
-3. Add your Llama API key
-   - Create a file at `lib/config/api_config.dart` with the following content:
-   ```dart
-   class ApiConfig {
-     // Your Together AI API key
-     static const String llamaApiKey = 'your_api_key_here';
-   }
-   ```
-
-4. Run the app
-   ```
+4. Run the app:
+   ```bash
    flutter run
    ```
 
-## API Configuration
+## Theme Customization
 
-This app uses the [Together AI](https://www.together.ai) platform to access Llama models. You'll need to:
+The app includes a comprehensive theme system:
+- Access theme settings via the gear icon in the top-right corner
+- Toggle between dark and light modes
+- Choose from 8 different accent colors:
+  - System Blue
+  - System Green
+  - System Indigo
+  - System Orange
+  - System Pink
+  - System Purple
+  - System Red
+  - System Teal
 
-1. Create an account on Together AI
-2. Get an API key from your dashboard
-3. Configure the key as shown in the setup section
+Theme preferences are automatically saved and restored between sessions.
 
 ## Important Note
 
-This app is for informational purposes only and should not replace professional medical advice. Always consult with healthcare professionals for personal medical concerns.
+This app provides general information only and should not replace professional medical advice. Always consult qualified healthcare professionals for medical concerns.
 
 ## Technologies Used
 
 - Flutter
 - Provider for state management
 - Llama AI through Together AI's API
+- Shared Preferences for theme persistence
 - HTTP for API communication
+- iOS-style Cupertino widgets
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

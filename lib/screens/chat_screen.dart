@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../providers/chat_provider.dart';
 import '../providers/theme_provider.dart';
 import 'package:intl/intl.dart';
 import '../widgets/welcome_dialog.dart';
+import '../screens/settings_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -26,7 +27,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showWelcomeDialog() {
-    showDialog(
+    showCupertinoDialog(
       context: context,
       builder: (context) => const WelcomeDialog(),
     );
@@ -52,84 +53,104 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Medical & Fitness Assistant'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        actions: [
-          IconButton(
-            icon: Icon(
-              themeProvider.isDarkMode
-                  ? Icons.wb_sunny
-                  : Icons.nightlight_round,
-            ),
-            onPressed: () {
-              themeProvider.toggleTheme();
-            },
-            tooltip: 'Toggle theme',
-          ),
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              Provider.of<ChatProvider>(context, listen: false)
-                  .setCategory(value);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Category changed to $value')),
-              );
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'medical',
-                child: Text('Medical Advice'),
-              ),
-              const PopupMenuItem(
-                value: 'fitness',
-                child: Text('Fitness & Nutrition'),
-              ),
-            ],
-            icon: const Icon(Icons.category),
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () {
-              Provider.of<ChatProvider>(context, listen: false).clearChat();
-            },
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Consumer<ChatProvider>(
-              builder: (context, chatProvider, child) {
-                WidgetsBinding.instance
-                    .addPostFrameCallback((_) => _scrollToBottom());
-                return ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(8.0),
-                  itemCount: chatProvider.messages.length,
-                  itemBuilder: (context, index) {
-                    final message = chatProvider.messages[index];
-                    return _buildMessageBubble(message);
-                  },
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: const Text('Medical & Fitness Assistant'),
+        backgroundColor: isDark ? CupertinoColors.black : CupertinoColors.white,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: const Icon(CupertinoIcons.settings),
+              onPressed: () {
+                Navigator.of(context).push(
+                  CupertinoPageRoute(
+                    builder: (context) => const SettingsScreen(),
+                  ),
                 );
               },
             ),
-          ),
-          Consumer<ChatProvider>(
-            builder: (context, chatProvider, child) {
-              if (chatProvider.isLoading) {
-                return const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: LinearProgressIndicator(),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: const Icon(CupertinoIcons.list_bullet),
+              onPressed: () {
+                showCupertinoModalPopup(
+                  context: context,
+                  builder: (context) => CupertinoActionSheet(
+                    actions: [
+                      CupertinoActionSheetAction(
+                        onPressed: () {
+                          Provider.of<ChatProvider>(context, listen: false)
+                              .setCategory('medical');
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Medical Advice'),
+                      ),
+                      CupertinoActionSheetAction(
+                        onPressed: () {
+                          Provider.of<ChatProvider>(context, listen: false)
+                              .setCategory('fitness');
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Fitness & Nutrition'),
+                      ),
+                    ],
+                    cancelButton: CupertinoActionSheetAction(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
                 );
-              } else {
-                return const SizedBox.shrink();
-              }
-            },
-          ),
-          _buildInputArea(),
-        ],
+              },
+            ),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: const Icon(CupertinoIcons.delete),
+              onPressed: () {
+                Provider.of<ChatProvider>(context, listen: false).clearChat();
+              },
+            ),
+          ],
+        ),
+      ),
+      child: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: Consumer<ChatProvider>(
+                builder: (context, chatProvider, child) {
+                  WidgetsBinding.instance
+                      .addPostFrameCallback((_) => _scrollToBottom());
+                  return ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(8.0),
+                    itemCount: chatProvider.messages.length,
+                    itemBuilder: (context, index) {
+                      final message = chatProvider.messages[index];
+                      return _buildMessageBubble(message);
+                    },
+                  );
+                },
+              ),
+            ),
+            Consumer<ChatProvider>(
+              builder: (context, chatProvider, child) {
+                if (chatProvider.isLoading) {
+                  return const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CupertinoActivityIndicator(),
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
+            _buildInputArea(),
+          ],
+        ),
       ),
     );
   }
@@ -137,7 +158,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildMessageBubble(ChatMessage message) {
     final isUser = message.isUser;
     final time = DateFormat('HH:mm').format(message.timestamp);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
@@ -146,9 +167,18 @@ class _ChatScreenState extends State<ChatScreen> {
             isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           if (!isUser)
-            CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              child: const Icon(Icons.health_and_safety, color: Colors.white),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: CupertinoColors.systemBlue,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                CupertinoIcons.heart_fill,
+                color: CupertinoColors.white,
+                size: 16,
+              ),
             ),
           const SizedBox(width: 8.0),
           Flexible(
@@ -157,8 +187,12 @@ class _ChatScreenState extends State<ChatScreen> {
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
               decoration: BoxDecoration(
                 color: isUser
-                    ? (isDark ? Colors.blue[800] : Colors.blue[100])
-                    : (isDark ? Colors.grey[800] : Colors.grey[200]),
+                    ? (isDark
+                        ? CupertinoColors.systemBlue.darkColor
+                        : CupertinoColors.systemBlue.withOpacity(0.2))
+                    : (isDark
+                        ? CupertinoColors.systemGrey6.darkColor
+                        : CupertinoColors.systemGrey6),
                 borderRadius: BorderRadius.circular(20.0),
               ),
               child: Column(
@@ -168,7 +202,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     message.content,
                     style: TextStyle(
                       fontSize: 16.0,
-                      color: isDark ? Colors.white : Colors.black87,
+                      color: isDark
+                          ? CupertinoColors.white
+                          : CupertinoColors.black,
                     ),
                   ),
                   const SizedBox(height: 4.0),
@@ -176,7 +212,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     time,
                     style: TextStyle(
                       fontSize: 12.0,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      color: isDark
+                          ? CupertinoColors.systemGrey
+                          : CupertinoColors.systemGrey2,
                     ),
                   ),
                 ],
@@ -185,9 +223,18 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           const SizedBox(width: 8.0),
           if (isUser)
-            CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              child: const Icon(Icons.person, color: Colors.white),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: CupertinoColors.systemBlue,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                CupertinoIcons.person_fill,
+                color: CupertinoColors.white,
+                size: 16,
+              ),
             ),
         ],
       ),
@@ -195,44 +242,34 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildInputArea() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       decoration: BoxDecoration(
-        color: isDark ? Colors.grey[850] : Colors.white,
-        boxShadow: [
-          BoxShadow(
-            offset: const Offset(0, -2),
-            blurRadius: 4.0,
-            color: Colors.black.withOpacity(0.1),
+        color: isDark ? CupertinoColors.black : CupertinoColors.white,
+        border: Border(
+          top: BorderSide(
+            color: isDark
+                ? CupertinoColors.systemGrey6.darkColor
+                : CupertinoColors.systemGrey6,
           ),
-        ],
+        ),
       ),
       child: Row(
         children: [
           Expanded(
-            child: TextField(
+            child: CupertinoTextField(
               controller: _textController,
-              decoration: InputDecoration(
-                hintText: 'Type your question...',
-                hintStyle: TextStyle(
-                  color: isDark ? Colors.grey[400] : Colors.grey[600],
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.all(16.0),
-              ),
-              style: TextStyle(
-                color: isDark ? Colors.white : Colors.black87,
-              ),
+              placeholder: 'Type your question...',
+              padding: const EdgeInsets.all(12.0),
+              decoration: null,
               onSubmitted: _handleSubmit,
             ),
           ),
-          IconButton(
-            icon: Icon(
-              Icons.send,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+          CupertinoButton(
+            padding: const EdgeInsets.all(8.0),
+            child: const Icon(CupertinoIcons.arrow_up_circle_fill),
             onPressed: () => _handleSubmit(_textController.text),
           ),
         ],
