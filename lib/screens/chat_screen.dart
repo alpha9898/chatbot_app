@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/chat_provider.dart';
+import '../providers/theme_provider.dart';
 import 'package:intl/intl.dart';
 import '../widgets/welcome_dialog.dart';
 
@@ -50,11 +51,24 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Health Assistant'),
+        title: const Text('Medical & Fitness Assistant'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
+          IconButton(
+            icon: Icon(
+              themeProvider.isDarkMode
+                  ? Icons.wb_sunny
+                  : Icons.nightlight_round,
+            ),
+            onPressed: () {
+              themeProvider.toggleTheme();
+            },
+            tooltip: 'Toggle theme',
+          ),
           PopupMenuButton<String>(
             onSelected: (value) {
               Provider.of<ChatProvider>(context, listen: false)
@@ -123,6 +137,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildMessageBubble(ChatMessage message) {
     final isUser = message.isUser;
     final time = DateFormat('HH:mm').format(message.timestamp);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
@@ -131,9 +146,9 @@ class _ChatScreenState extends State<ChatScreen> {
             isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           if (!isUser)
-            const CircleAvatar(
-              backgroundColor: Colors.blue,
-              child: Icon(Icons.health_and_safety, color: Colors.white),
+            CircleAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: const Icon(Icons.health_and_safety, color: Colors.white),
             ),
           const SizedBox(width: 8.0),
           Flexible(
@@ -141,7 +156,9 @@ class _ChatScreenState extends State<ChatScreen> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
               decoration: BoxDecoration(
-                color: isUser ? Colors.blue[100] : Colors.grey[200],
+                color: isUser
+                    ? (isDark ? Colors.blue[800] : Colors.blue[100])
+                    : (isDark ? Colors.grey[800] : Colors.grey[200]),
                 borderRadius: BorderRadius.circular(20.0),
               ),
               child: Column(
@@ -149,14 +166,17 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: [
                   Text(
                     message.content,
-                    style: const TextStyle(fontSize: 16.0),
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
                   ),
                   const SizedBox(height: 4.0),
                   Text(
                     time,
                     style: TextStyle(
                       fontSize: 12.0,
-                      color: Colors.grey[600],
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
                     ),
                   ),
                 ],
@@ -165,9 +185,9 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           const SizedBox(width: 8.0),
           if (isUser)
-            const CircleAvatar(
-              backgroundColor: Colors.blue,
-              child: Icon(Icons.person, color: Colors.white),
+            CircleAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: const Icon(Icons.person, color: Colors.white),
             ),
         ],
       ),
@@ -175,10 +195,12 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildInputArea() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Colors.grey[850] : Colors.white,
         boxShadow: [
           BoxShadow(
             offset: const Offset(0, -2),
@@ -192,16 +214,25 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: TextField(
               controller: _textController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'Type your question...',
+                hintStyle: TextStyle(
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.all(16.0),
+                contentPadding: const EdgeInsets.all(16.0),
+              ),
+              style: TextStyle(
+                color: isDark ? Colors.white : Colors.black87,
               ),
               onSubmitted: _handleSubmit,
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.send),
+            icon: Icon(
+              Icons.send,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             onPressed: () => _handleSubmit(_textController.text),
           ),
         ],

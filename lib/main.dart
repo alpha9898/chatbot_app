@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'services/llama_api_service.dart';
 import 'providers/chat_provider.dart';
+import 'providers/theme_provider.dart';
 import 'screens/chat_screen.dart';
 import 'config/api_config.dart';
 
@@ -21,14 +22,29 @@ class MyApp extends StatelessWidget {
             LlamaApiService(ApiConfig.llamaApiKey),
           ),
         ),
-      ],
-      child: MaterialApp(
-        title: 'Medical & Fitness Assistant',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          useMaterial3: true,
+        ChangeNotifierProvider(
+          create: (context) => ThemeProvider(),
         ),
-        home: const ChatScreen(),
+      ],
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            title: 'Medical & Fitness Assistant',
+            themeMode: themeProvider.themeMode,
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+              useMaterial3: true,
+            ),
+            darkTheme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.blue,
+                brightness: Brightness.dark,
+              ),
+              useMaterial3: true,
+            ),
+            home: const ChatScreen(),
+          );
+        },
       ),
     );
   }

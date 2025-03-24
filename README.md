@@ -1,6 +1,6 @@
 # Medical & Fitness Assistant
 
-A Flutter application that provides a specialized chatbot for medical and fitness questions using the Llama AI model.
+A Flutter application that provides a specialized chatbot for medical and fitness questions using the Llama AI model. Features both light and dark mode for comfortable use in any environment.
 
 ## Features
 
@@ -9,6 +9,7 @@ A Flutter application that provides a specialized chatbot for medical and fitnes
 - **Nutrition Advice**: Learn about dietary recommendations and nutritional information
 - **User-friendly Interface**: Clean chat interface with message bubbles and loading indicators
 - **Category Selection**: Switch between medical and fitness focus as needed
+- **Dark Mode Support**: Toggle between light and dark themes for comfortable use day or night
 
 ## Setup
 
